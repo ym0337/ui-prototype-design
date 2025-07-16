@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import 'normalize.css'; // 自动重置浏览器差异
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import App from './App.vue'
