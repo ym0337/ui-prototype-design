@@ -1,11 +1,23 @@
-<!-- src/views/HomeView.vue -->
 <template>
-  <div class="home">
-    <h1>Home Page</h1>
-    <router-link to="/about">Go to About</router-link>
-  </div>
+  <HeaderBar />
+  <el-container class="layout-container">
+    <Menus />
+    <paint />
+    <ComponentAttr />
+  </el-container>
 </template>
 
-<script setup>
-// 使用script setup语法
+<script lang="ts" setup>
+import HeaderBar from '@/components/HeaderBar/HeaderBar.vue'
+import Menus from './Menus.vue'
+import Paint from './Paint.vue'
+import ComponentAttr from './ComponentAttribute.vue'
+
 </script>
+
+<style lang="scss" scoped>
+.layout-container {
+  height: calc(100vh - 70px);
+  overflow: hidden;
+}
+</style>
