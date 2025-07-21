@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-import { ref, reactive, onMounted, toRaw } from "vue";
+import { ref, reactive, onMounted, toRaw, watch } from "vue";
 import {
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Delete
 } from '@element-plus/icons-vue'
+import { storeToRefs } from "pinia";
 import { usePageCompsStore } from '@/store/pageComps'
 const pageCompsStore = usePageCompsStore()
+const { curComp } = storeToRefs(pageCompsStore)
+
 
 const isCollapse = ref(true)
 
@@ -29,12 +33,12 @@ const collapseLists = reactive([
     title: '基础设置',
     name: '1',
     fields: [
-      {
-        type: 'input',
-        label: '占位符',
-        model: 'placeholder',
-        placeholder: '请输入占位符'
-      },
+      // {
+      //   type: 'input',
+      //   label: '占位符',
+      //   model: 'placeholder',
+      //   placeholder: '请输入占位符'
+      // },
       {
         type: 'input',
         label: '宽度',
@@ -42,10 +46,29 @@ const collapseLists = reactive([
         placeholder: '请输入宽度'
       }
     ]
+  },
+  {
+    title: '数据设置',
+    name: '2',
+    fields: [
+      {
+        type: 'select-options',
+        label: 'options数据',
+        model: 'option',
+        options: [
+          {
+            label: '选项3',
+          },
+          {
+            label: '选项4',
+          }
+        ]
+      },
+    ]
   }
 ])
 
-const activeNames = ref(['1'])
+const activeNames = ref(['1', '2'])
 const handleChange = (val: any) => {
   console.log(val)
 }
@@ -54,6 +77,15 @@ const form = reactive({
   placeholder: '',
   width: 200
 })
+
+watch(curComp, (newVal) => {
+  // console.log('curComp', toRaw(newVal))
+  if (newVal && newVal.type === 'select') {
+    // 设置options数据
+    const selectComp = collapseLists[1].fields.find(item => item.type == 'select-options')
+    selectComp.options = newVal.options
+  }
+}, { deep: true })
 
 onMounted(async () => {
 });
@@ -87,14 +119,23 @@ onMounted(async () => {
         <el-collapse-item v-for="item in collapseLists" :key="item.name" :name="item.name">
           <template #title="{ isActive }">
             <div style="padding: 0 10px;">
-              {{item.title}}
+              {{ item.title }}
             </div>
           </template>
           <div class="config-content">
             <el-row>
               <el-col v-for="(field, fIndex) in item.fields" :key="fIndex" :span="24">
-                <div>{{field.label}}</div>
-                <el-input v-model="form[field.model]"></el-input>
+                <template v-if="field.type === 'input'">
+                  <div>{{ field.label }}</div>
+                  <el-input v-model="form[field.model]"></el-input>
+                </template>
+                <template v-if="field.type === 'select-options'">
+                  <div>{{ field.label }}</div>
+                  <div class="select-options" v-for="option in field.options" :key="option.label">
+                    <el-input v-model="option.label"></el-input>
+                    <el-button type="danger" :icon="Delete" />
+                  </div>
+                </template>
               </el-col>
             </el-row>
           </div>
@@ -158,6 +199,13 @@ onMounted(async () => {
 
     .el-col:last-child {
       margin-bottom: 0px;
+    }
+
+    .select-options {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0px;
     }
   }
 

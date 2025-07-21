@@ -2,7 +2,11 @@
 import { ref, onMounted, watch, toRaw, onUnmounted } from "vue";
 import { ElInput, ElSelect, ElDialog, ElButton } from 'element-plus';
 import { usePageCompsStore } from '@/store/pageComps'
+import { storeToRefs } from 'pinia'
+
 const pageCompsStore = usePageCompsStore()
+
+const { curComp, allComps } = storeToRefs(pageCompsStore);
 
 interface ComponentConfig {
   id: string;
@@ -82,27 +86,33 @@ const getComponentType = (type: any) => {
 watch(
   () => pageCompsStore.allComps,
   (newVal) => {
-    console.log('当前页面的组件集合:', newVal)
+    // console.log('当前页面的组件集合:', newVal)
     renderComps(newVal)
   },
   { deep: true, immediate: true }
 )
 
 const dragEnd = (event: any) => {
-  console.log('更新了位置:', event.detail)
+  // console.log('更新了位置:', event.detail)
 }
 
 const selectCompId = ref('')
 const compClick = (item: any) => {
-  // console.log('点击了组件:', item)
+  // console.log('点击了组件:',item.target)
   selectCompId.value = item.id || ''
-  console.log('当前选中的组件id:', selectCompId.value)
+  // console.log('当前选中的组件id:', selectCompId.value)
 }
 
+watch(curComp, (newVal)=>{
+  if(newVal && newVal.id){
+    compClick(newVal)
+  }
+},{
+  deep: true,
+})
 
 onMounted(async () => {
   document.addEventListener('click', compClick, true)
-
 });
 
 onUnmounted(() => {
